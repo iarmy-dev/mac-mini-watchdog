@@ -1,0 +1,32 @@
+name: watchdog-mac-mini
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # toutes les 5 min
+  workflow_dispatch:          # bouton "run" manuel
+
+permissions:
+  contents: write             # pour commit le state.json au changement d'etat
+
+concurrency:
+  group: watchdog
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check heartbeat
+        id: chk
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT: ${{ secrets.TELEGRAM_CHAT }}
+        run: python3 watchdog.py
+      - name: Persist state on change
+        if: steps.chk.outputs.changed == 'true'
+        run: |
+          git config user.name "watchdog"
+          git config user.email "watchdog@users.noreply.github.com"
+          git add state.json
+          git commit -m "state change" || exit 0
+          git push
