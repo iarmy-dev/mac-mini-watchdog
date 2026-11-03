@@ -4,7 +4,7 @@
 import os, sys, json, time, urllib.request, urllib.parse
 
 NTFY_TOPIC = "macmini-heartbeat-k7m9x2"   # battement de coeur emis par le Mac Mini
-STALE_MIN  = 15                            # pas de heartbeat depuis >15 min => DOWN
+STALE_MIN  = 45                            # heartbeat toutes les 30 min (depuis 31/10) : >45 min sans signe de vie => DOWN
 STATE_FILE = "state.json"
 
 TOKEN = os.environ["TELEGRAM_TOKEN"]
