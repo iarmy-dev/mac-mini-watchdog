@@ -30,3 +30,15 @@ jobs:
           git add state.json
           git commit -m "state change" || exit 0
           git push
+      - name: Keepalive mensuel (GitHub coupe les crons d'un depot inactif 60 jours)
+        run: |
+          m=$(date -u +%Y-%m)
+          if [ "$(cat keepalive.txt 2>/dev/null)" != "$m" ]; then
+            echo "$m" > keepalive.txt
+            git config user.name "watchdog"
+            git config user.email "watchdog@users.noreply.github.com"
+            git pull -q --rebase || true
+            git add keepalive.txt
+            git commit -m "keepalive $m" || exit 0
+            git push
+          fi
